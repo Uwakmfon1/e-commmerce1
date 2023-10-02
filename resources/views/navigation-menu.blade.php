@@ -4,7 +4,6 @@
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
-                
 
                 <!-- Navigation Links -->
 
