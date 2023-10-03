@@ -27,12 +27,12 @@
    @include("home.header")
     <!-- end header section -->
 
-
     <!-- slider section -->
     @include("home.slider")
     <!-- end slider section -->
-
 </div>
+
+
 <!-- why section -->
     @include("home.why")
 <!-- end why section -->
