@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <base href="/public">
     <style>
         .div_center {
             text-align: center;
@@ -54,56 +55,64 @@
             @endif
 
             <div class="div_center">
-                <h1 class="font_size">Add Product</h1>
-                <form action="{{ url('/add_product') }}" method="POST" enctype="multipart/form-data">
+                <h1 class="font_size">Update Product</h1>
+                <form action="{{ url('/update_product_confirm',$product->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="div_design">
                         <label>Product Title: </label>
-                        <input type="text" name="title" class="text_color" placeholder="Write a title" required="">
+                        <input type="text" name="title" class="text_color" placeholder="Write a title" required=""
+                        value="{{ $product->title }}">
                     </div>
 
 
                     <div class="div_design">
                         <label>Product Description: </label>
                         <input type="text" name="description" class="text_color" placeholder="Write a Description"
-                               required="">
+                               required="" value="{{ $product->description }}">
                     </div>
 
                     <div class="div_design">
                         <label>Product Price: </label>
-                        <input type="number" name="price" class="text_color" placeholder="Enter a price" required="">
+                        <input type="number" name="price" class="text_color" placeholder="Enter a price" required=""
+                               value="{{ $product->price }}">
                     </div>
 
                     <div class="div_design">
                         <label>discount price: </label>
-                        <input type="text" name="dis_price" class="text_color" placeholder="Discount Price">
+                        <input type="text" name="dis_price" class="text_color" placeholder="Discount Price" required=""
+                               value="{{ $product->discount_price }}">
                     </div>
 
                     <div class="div_design">
                         <label>Product Quantity: </label>
                         <input type="number" name="quantity" min="0" class="text_color" placeholder="choose a quantity"
-                               required="">
+                               required="" value="{{ $product->quantity }}">
                     </div>
+
 
 
                     <div class="div_design">
                         <label>Product Category: </label>
                         <select class="text_color" name="category">
-                            <option value="" selected="">Add a Category</option>
+                            <option value="{{ $product->category }}" selected="">{{ $product->category }}</option>
                             @foreach ($category as $category)
                                 <option value="{{ $category->category_name }}">{{ $category->category_name }}</option>
                             @endforeach
                         </select>
                     </div>
 
-
                     <div class="div_design">
-                        <label>Product Image Here</label>
-                        <input type="file" name="image" placeholder="select an image" required="">
+                        <label>Current Product Image</label>
+                        <img style="margin: auto;" src="/product/{{ $product->image }}">
                     </div>
 
                     <div class="div_design">
-                        <input type="submit" value="Add Category">
+                        <label>Change Product Image </label>
+                        <input type="file" name="image" placeholder="select an image" >
+                    </div>
+
+                    <div class="div_design">
+                        <input type="submit" value="Update Product">
                     </div>
 
                 </form>
