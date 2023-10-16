@@ -15,9 +15,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::get('/', function () {
-//    return view('welcome');
-//});
+
 
 Route::get('/',[HomeController::class,'index']);
 
@@ -30,6 +28,7 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
 
 Route::get('/redirect',[HomeController::class,'redirect']);
 
@@ -52,5 +51,7 @@ Route::get('/delete_product/{id}',[AdminController::class,'delete_product']);
 Route::post('/update_product_confirm/{id}',[AdminController::class,'update_product_confirm']);
 
 Route::get('/product_details/{id}',[HomeController::class,'product_details']);
+
+Route::post('/add_cart/{id}',[HomeController::class,'add_cart']);
 
 

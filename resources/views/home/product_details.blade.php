@@ -66,9 +66,18 @@
                 @endif
 
                 <h6><b>Product Category:</b>{{$product->category}}</h6>
-{{--                <h6><b>Price:</b>{{$product->price}}</h6>--}}
+
                 <h6><b>Available Quantity:</b>{{$product->quantity}}</h6>
-                <a href="" class="btn btn-primary">Add to Cart</a>
+                <form action="{{url('/add_cart',$product->id)}}" method="post" style="display: flex">
+                    @csrf
+                    <div class="col-md-4">
+                        <input type="number" min="1" value="1" name="quantity" width="100px">
+                    </div>
+
+                    <div class="col-md-4">
+                        <input type="submit" value="Add To Cart">
+                    </div>
+                </form>
             </div>
         </div>
     </div>
