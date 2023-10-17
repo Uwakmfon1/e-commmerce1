@@ -63,7 +63,14 @@ class HomeController extends Controller
         } else {
             return redirect('login');
         }
+    }
 
 
+    public function show_cart()
+    {
+        $id=Auth::user()->id;
+        $cart = Cart::where('user_id','=',$id)->get();
+
+        return view('home.show_cart',compact('cart'));
     }
 }
