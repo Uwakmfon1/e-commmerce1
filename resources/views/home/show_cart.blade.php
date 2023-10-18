@@ -21,12 +21,17 @@
     <!-- responsive style -->
     <link href="home/css/responsive.css" rel="stylesheet"/>
 
-    <style>
+    <style type="text/css">
         .center {
             margin: auto;
-            width: 50%;
+            width: 70%;
             text-align: center;
             padding: 30px;
+        }
+
+        .img_deg {
+            height: 200px;
+            width: 200px;
         }
 
         table, th, td {
@@ -36,8 +41,12 @@
         .th_deg {
             font-size: 30px;
             padding: 5px;
+            background-color: skyblue;
         }
-
+        .total_deg{
+            padding:40px;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
@@ -45,6 +54,15 @@
     <!-- header section strats -->
     @include("home.header")
     <!-- end header section -->
+    
+    @if(session()->has('message'))
+        <div class="alert alert-success">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+                x
+            </button>
+            {{ session()->get('message') }}
+        </div>
+    @endif
 
     <div class="center">
         <table>
@@ -55,19 +73,36 @@
                 <th class="th_deg">Image</th>
                 <th class="th_deg">Action</th>
             </tr>
-
+            <?php $totalPrice = 0; ?>
             @foreach($cart as $cart)
                 <tr>
                     <td>{{ $cart->product_title}}</td>
                     <td>{{ $cart->quantity }}</td>
-                    <td>{{ $cart->price }}</td>
-                    <td>{{ $cart->image }}</td>
-                    <td>Delete</td>
-                </tr>
-            @endforeach
+                    <td>₦f   {{ $cart->price }}</td>
+                    <td><img class="img_deg" src="/product/{{$cart->image}}"></td>
 
+                    <td>
+                        <a class="btn btn-danger" style="margin:10px;" onclick="confirm('Are you sure you want to delete this?')"
+                           href="{{url('remove_cart', $cart->id)}}">Remove Product</a>
+                    </td>
+                </tr>
+                    <?php $totalPrice = $totalPrice + $cart->price; ?>
+            @endforeach
         </table>
+        <h2 class="total_deg">Total Price: ₦{{ $totalPrice }}
+
+            <div style="padding-top: 20px;">
+                <h1>Proceed To Order</h1>
+                <a href="{{url('/cash_order')}}" class="btn btn-danger">Cash on Delivery</a>
+                <a href="" class="btn btn-danger">Pay using Cash</a>
+            </div>
     </div>
+
+
+
+
+
+
     <div class="cpy_">
         <p class="mx-auto">© 2021 All Rights Reserved By <a href="https://html.design/">Free Html Templates</a><br>
 

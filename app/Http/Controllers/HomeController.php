@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 use App\Models\Cart;
+use App\Models\Order;
 
 class HomeController extends Controller
 {
@@ -46,7 +47,7 @@ class HomeController extends Controller
             $cart->address = $user->address;
             $cart->user_id = $user->id;
 
-            $cart->product_title = $product->product_title;
+            $cart->product_title = $product->title;
 
             if ($product->discount_price != null) {
                 $cart->price = $product->discount_price * $request->quantity;
@@ -59,6 +60,7 @@ class HomeController extends Controller
 
             $cart->quantity = $request->quantity;
             $cart->save();
+
             return redirect()->back();
         } else {
             return redirect('login');
@@ -68,9 +70,61 @@ class HomeController extends Controller
 
     public function show_cart()
     {
-        $id=Auth::user()->id;
-        $cart = Cart::where('user_id','=',$id)->get();
+        if (Auth::id()) {
+            $id = Auth::user()->id;
+            $cart = Cart::where('user_id', '=', $id)->get();
+            return view('home.show_cart', compact('cart'));
+        } else {
+            return redirect('login');
+        }
 
-        return view('home.show_cart',compact('cart'));
+    }
+
+    public function remove_cart($id)
+    {
+        $cart = cart::find($id);
+        $cart->delete();
+        return redirect()->back();
+    }
+
+    public function cash_order()
+    {
+        $user = Auth::user();
+        $userid = $user->id;
+        $data = cart::where('user_id','=',$userid)->get();
+
+        foreach($data as $data){
+            $order = new order;
+            $order->name = $data->name;
+
+            $order->email = $data->email;
+
+            $order->phone = $data->phone;
+
+            $order->address = $data->address;
+
+            $order->user_id = $data->user_id;
+
+            $order->product_title = $data->product_title;
+
+            $order->price = $data->price;
+
+            $order->quantity = $data->quantity;
+
+            $order->image = $data->image;
+
+            $order->product_id = $data->product_id;
+
+            $order->payment_status = 'cash on delivery';
+
+            $order->delivery_status ='processing';
+
+            $order->save();
+
+            $cart_id = $data->id;
+            $cart = cart::find($cart_id);
+            $cart->delete();
+        }
+        return redirect()->back()->with('message','We haved received your order, we will connect with you soon');
     }
 }
