@@ -54,7 +54,7 @@
     <!-- header section strats -->
     @include("home.header")
     <!-- end header section -->
-    
+
     @if(session()->has('message'))
         <div class="alert alert-success">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">
@@ -78,7 +78,7 @@
                 <tr>
                     <td>{{ $cart->product_title}}</td>
                     <td>{{ $cart->quantity }}</td>
-                    <td>₦f   {{ $cart->price }}</td>
+                    <td>₦{{ $cart->price }}</td>
                     <td><img class="img_deg" src="/product/{{$cart->image}}"></td>
 
                     <td>
@@ -94,7 +94,8 @@
             <div style="padding-top: 20px;">
                 <h1>Proceed To Order</h1>
                 <a href="{{url('/cash_order')}}" class="btn btn-danger">Cash on Delivery</a>
-                <a href="" class="btn btn-danger">Pay using Cash</a>
+
+                <a href="{{url('/stripe',$totalPrice)}}" class="btn btn-danger">Pay using Card</a>
             </div>
     </div>
 
