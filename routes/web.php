@@ -30,7 +30,7 @@ Route::middleware([
 });
 
 
-Route::get('/redirect',[HomeController::class,'redirect']);
+Route::get('/redirect',[HomeController::class,'redirect'])->middleware('auth','verified');
 
 Route::get('/view_category',[AdminController::class,'view_category']);
 
@@ -53,6 +53,8 @@ Route::post('/update_product_confirm/{id}',[AdminController::class,'update_produ
 Route::get('/order',[AdminController::class,'order']);
 
 Route::get('/delivered/{id}',[AdminController::class,'delivered']);
+
+Route::get('/print_pdf/{id}',[AdminController::class,'print_pdf']);
 
 
 

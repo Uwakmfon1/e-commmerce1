@@ -29,16 +29,7 @@
             height: 100px;
         }
 
-        .delivery_btn{
-            background-color: skyblue;
-            padding: 4px;
-            border-radius:4px;
 
-        }
-
-        a{
-            text-decoration: none;
-        }
 
     </style>
 </head>
@@ -62,9 +53,11 @@
                     <th>Product Title</th>
                     <th>Quantity</th>
                     <th>Price</th>
+                    <th>Payment Status</th>
                     <th>Delivery Status</th>
                     <th>Image</th>
                     <th>Delivered</th>
+                    <th>Download PDF</th>
                 </tr>
 
                 @foreach($order as $order)
@@ -76,17 +69,21 @@
                         <td>{{ $order->product_title }}</td>
                         <td>{{ $order->quantity }}</td>
                         <td>{{ $order->price }}</td>
+                        <td>{{ $order->payment_status }}</td>
                         <td>{{ $order->delivery_status }}</td>
                         <td>
                             <img src="product/{{$order->image}}" class="img_deg">
                         </td>
                         <td>
                             @if($order->delivery_status == 'processing')
-                                <a href="{{url('delivered',$order->id)}}" class="delivery_btn"
+                                <a href="{{url('delivered',$order->id)}}" class="btn btn-primary"
                                    onclick="return confirm('Are you sure this product is delivered?')">Delivered</a>
                             @else
                                 <p style="color:darkgreen;">Delivered</p>
                             @endif
+                        </td>
+                        <td>
+                            <a href="{{url('print_pdf',$order->id)}}" class="btn btn-secondary">Print PDF</a>
                         </td>
                     </tr>
                 @endforeach
