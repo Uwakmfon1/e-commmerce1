@@ -23,8 +23,29 @@ class HomeController extends Controller
     public function redirect()
     {
         $usertype = Auth::user()->usertype;
+
+        $total_products = Product::all()->count();
+        $total_orders = Order::all()->count();
+        $total_customers = User::all()->count();
+        $total_revenue =Order::all('price');
+        $total_customers = User::all()->count();
+        $order = Order::all();
+        $total_revenue = 0;
+
+        foreach($order as $order)
+        {
+            $total_revenue = $total_revenue + $order->price;
+        }
+
+        $total_deliveries = Order::where('delivery_status', '=', 'delivered')->count();
+        $total_processing = Order::where('delivery_status', '=', 'processing')->count();
+
+
         if ($usertype == "1") {
-            return view('admin.home');
+
+            return view('admin.home',compact(
+                'total_products','total_orders','total_customers',
+                'total_revenue','total_deliveries','total_processing'));
         } else {
             $product = product::paginate(6);
             return view('home.userpage', compact('product'));
@@ -189,6 +210,23 @@ class HomeController extends Controller
 
         return back();
     }
+    public function show_order()
+    {
+        if (Auth::id()) {
+            $userid = Auth::user()->id;
+            $order = Order::where('user_id', '=', $userid)->get();
+            return view('home.show_order', compact('order'));
+        } else {
+            return redirect('login');
+        }
+    }
 
+    public function cancel_order($id)
+    {
+    $order=Order::find($id);
+    $order->delivery_status =  'You canceled the Order';
+    $order->save();
+    return redirect()->back();
+    }
 
 }
