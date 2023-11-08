@@ -4,6 +4,15 @@
             <h2>
                 Our <span>products</span>
             </h2>
+            <br><br>
+
+            <div>
+                <form action="{{url('search_produt')}}" method="GET">
+                    @csrf
+                    <input type="text" name="search" style="width:400px" placeholder="Search for something">
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
         </div>
         <div class="row">
             @foreach($product as $products)
@@ -67,3 +76,6 @@
         </div>
     </div>
 </section>
+
+
+

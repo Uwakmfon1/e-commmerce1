@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
+use App\Models\Comment;
+use App\Models\Reply;
 use App\Models\Cart;
 use App\Models\Order;
 
@@ -17,23 +20,23 @@ class HomeController extends Controller
     public function index()
     {
         $product = product::paginate(6);
-        return view('home.userpage', compact('product'));
+        $comment = Comment::orderby('id','desc')->get();
+        $reply = Reply::all();
+        return view('home.userpage', compact('product', 'comment','reply'));
     }
 
     public function redirect()
     {
         $usertype = Auth::user()->usertype;
-
         $total_products = Product::all()->count();
         $total_orders = Order::all()->count();
         $total_customers = User::all()->count();
-        $total_revenue =Order::all('price');
+        $total_revenue = Order::all('price');
         $total_customers = User::all()->count();
         $order = Order::all();
         $total_revenue = 0;
 
-        foreach($order as $order)
-        {
+        foreach ($order as $order) {
             $total_revenue = $total_revenue + $order->price;
         }
 
@@ -42,13 +45,14 @@ class HomeController extends Controller
 
 
         if ($usertype == "1") {
-
-            return view('admin.home',compact(
-                'total_products','total_orders','total_customers',
-                'total_revenue','total_deliveries','total_processing'));
+            return view('admin.home', compact(
+                'total_products', 'total_orders', 'total_customers',
+                'total_revenue', 'total_deliveries', 'total_processing'));
         } else {
+            $comment = Comment::orderby('id','desc')->get();
+            $reply = Reply::all();
             $product = product::paginate(6);
-            return view('home.userpage', compact('product'));
+            return view('home.userpage', compact('comment', 'product','reply'));
         }
     }
 
@@ -115,9 +119,9 @@ class HomeController extends Controller
     {
         $user = Auth::user();
         $userid = $user->id;
-        $data = cart::where('user_id','=',$userid)->get();
+        $data = cart::where('user_id', '=', $userid)->get();
 
-        foreach($data as $data){
+        foreach ($data as $data) {
             $order = new order;
             $order->name = $data->name;
 
@@ -141,7 +145,7 @@ class HomeController extends Controller
 
             $order->payment_status = 'cash on delivery';
 
-            $order->delivery_status ='processing';
+            $order->delivery_status = 'processing';
 
             $order->save();
 
@@ -149,20 +153,20 @@ class HomeController extends Controller
             $cart = cart::find($cart_id);
             $cart->delete();
         }
-        return redirect()->back()->with('message','We haved received your order, we will connect with you soon');
+        return redirect()->back()->with('message', 'We haved received your order, we will connect with you soon');
     }
 
     public function stripe($totalprice)
     {
-        return view('home.stripe',compact('totalprice'));
+        return view('home.stripe', compact('totalprice'));
     }
 
 
-    public function stripePost(Request $request,$totalprice)
+    public function stripePost(Request $request, $totalprice)
     {
         Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        Stripe\Charge::create ([
+        Stripe\Charge::create([
             "amount" => $totalprice * 100,
             "currency" => "usd",
             "source" => $request->stripeToken,
@@ -171,9 +175,9 @@ class HomeController extends Controller
 
         $user = Auth::user();
         $userid = $user->id;
-        $data = cart::where('user_id','=',$userid)->get();
+        $data = cart::where('user_id', '=', $userid)->get();
 
-        foreach($data as $data){
+        foreach ($data as $data) {
             $order = new order;
             $order->name = $data->name;
 
@@ -197,7 +201,7 @@ class HomeController extends Controller
 
             $order->payment_status = 'cash on delivery';
 
-            $order->delivery_status ='processing';
+            $order->delivery_status = 'processing';
 
             $order->save();
 
@@ -210,6 +214,7 @@ class HomeController extends Controller
 
         return back();
     }
+
     public function show_order()
     {
         if (Auth::id()) {
@@ -223,10 +228,58 @@ class HomeController extends Controller
 
     public function cancel_order($id)
     {
-    $order=Order::find($id);
-    $order->delivery_status =  'You canceled the Order';
-    $order->save();
-    return redirect()->back();
+        $order = Order::find($id);
+        $order->delivery_status = 'You canceled the Order';
+        $order->save();
+        return redirect()->back();
     }
 
+    public function add_comment(Request $request)
+    {
+        if (Auth::id()) {
+            $comment = new Comment;
+            $comment->name = Auth::user()->name;
+            $comment->user_id = Auth::user()->id;
+            $comment->comment = $request->comment;
+            $comment->save();
+            return redirect()->back();
+        } else {
+            return redirect('login');
+        }
+    }
+
+    public function add_reply(Request $request)
+    {
+
+        if (Auth::id()) {
+            $reply = new Reply;
+
+            $reply->name = Auth::user()->name;
+
+            $reply->user_id = Auth::user()->id;
+
+            $reply->comment_id = $request->commentId;
+
+            $reply->reply = $request->reply;
+
+            $reply->save();
+
+
+            return redirect()->back();
+        } else {
+            return redirect('login');
+        }
+    }
+
+    public function search_product(Request $request)
+    {
+        $comment = Comment::orderBy('id','desc')->get();
+        $reply = Reply::all();
+        $search_text = $request->search;
+        $categories = Category::all();
+        $product= Product::where('title','LIKE',"search_text")
+            ->orWhere('category','LIKE',"$search_text")
+            ->paginate(5);
+        return view('home.userpage', compact('product','categories','comment','reply'));
+    }
 }
