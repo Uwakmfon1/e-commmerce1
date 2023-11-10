@@ -14,7 +14,7 @@
         }
 
         form {
-            color: black;
+            color: #2b2b2b;
         }
 
         .img_style {

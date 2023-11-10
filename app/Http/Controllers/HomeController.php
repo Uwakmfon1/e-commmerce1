@@ -20,9 +20,9 @@ class HomeController extends Controller
     public function index()
     {
         $product = product::paginate(6);
-        $comment = Comment::orderby('id','desc')->get();
+        $comment = Comment::orderby('id', 'desc')->get();
         $reply = Reply::all();
-        return view('home.userpage', compact('product', 'comment','reply'));
+        return view('home.userpage', compact('product', 'comment', 'reply'));
     }
 
     public function redirect()
@@ -49,10 +49,10 @@ class HomeController extends Controller
                 'total_products', 'total_orders', 'total_customers',
                 'total_revenue', 'total_deliveries', 'total_processing'));
         } else {
-            $comment = Comment::orderby('id','desc')->get();
+            $comment = Comment::orderby('id', 'desc')->get();
             $reply = Reply::all();
             $product = product::paginate(6);
-            return view('home.userpage', compact('comment', 'product','reply'));
+            return view('home.userpage', compact('comment', 'product', 'reply'));
         }
     }
 
@@ -66,30 +66,53 @@ class HomeController extends Controller
     {
         if (Auth::id()) {
             $user = Auth::user();
+            $user_id = $user->id;
             $product = Product::find($id);
 
-            $cart = new Cart;
-            $cart->name = $user->name;
-            $cart->email = $user->email;
-            $cart->phone = $user->phone;
-            $cart->address = $user->address;
-            $cart->user_id = $user->id;
+            $product_exist_id = Cart::where('product_id', '=', $id)
+                ->where('user_id', '=', $user_id)->get('id')->first();
 
-            $cart->product_title = $product->title;
+//            ddd($product_exist_id);
 
-            if ($product->discount_price != null) {
-                $cart->price = $product->discount_price * $request->quantity;
+            if ($product_exist_id != null) {
+                $cart = Cart::find($product_exist_id)->first();
+                $quantity  = $cart->quantity;
+                $cart->quantity = $quantity + $request->quantity;
+
+                if ($product->discount_price != null) {
+                    $cart->price = $product->discount_price * $cart->quantity;
+                } else {
+                    $cart->price = $product->price * $cart->quantity;
+                }
+
+                $cart->save();
+                return redirect()->back()->with('message','Product added successfully');
             } else {
-                $cart->price = $product->price * $request->quantity;
+                $cart = new Cart;
+                $cart->name = $user->name;
+                $cart->email = $user->email;
+                $cart->phone = $user->phone;
+                $cart->address = $user->address;
+                $cart->user_id = $user->id;
+
+                $cart->product_title = $product->title;
+
+                if ($product->discount_price != null) {
+                    $cart->price = $product->discount_price * $request->quantity;
+                } else {
+                    $cart->price = $product->price * $request->quantity;
+                }
+
+                $cart->image = $product->image;
+                $cart->product_id = $product->id;
+
+                $cart->quantity = $request->quantity;
+                $cart->save();
+
+                return redirect()->back()->with('message','Product added successfully');
             }
 
-            $cart->image = $product->image;
-            $cart->product_id = $product->id;
 
-            $cart->quantity = $request->quantity;
-            $cart->save();
-
-            return redirect()->back();
         } else {
             return redirect('login');
         }
@@ -273,13 +296,36 @@ class HomeController extends Controller
 
     public function search_product(Request $request)
     {
-        $comment = Comment::orderBy('id','desc')->get();
+        $comment = Comment::orderBy('id', 'desc')->get();
         $reply = Reply::all();
         $search_text = $request->search;
         $categories = Category::all();
-        $product= Product::where('title','LIKE',"search_text")
-            ->orWhere('category','LIKE',"$search_text")
+        $product = Product::where('title', 'LIKE', "%$search_text%")
+            ->orWhere('category', 'LIKE', "$search_text")
             ->paginate(5);
-        return view('home.userpage', compact('product','categories','comment','reply'));
+
+        return view('home.userpage', compact('product', 'categories', 'comment', 'reply'));
+    }
+
+    public function product()
+    {
+        $product = product::paginate(6);
+        $comment = Comment::orderby('id', 'desc')->get();
+        $reply = Reply::all();
+
+        return view('home.products_page', compact('product', 'comment', 'reply'));
+    }
+
+    public function product_search(Request $request)
+    {
+//        $comment = Comment::orderBy('id','desc')->get();
+        $reply = Reply::all();
+        $search_text = $request->search;
+        $categories = Category::all();
+        $product = Product::where('title', 'LIKE', "%$search_text%")
+            ->orWhere('category', 'LIKE', "$search_text")
+            ->paginate(5);
+
+        return view('home.products_page', compact('product', 'categories', 'reply'));
     }
 }

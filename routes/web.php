@@ -91,5 +91,8 @@ Route::post('/add_comment',[HomeController::class,'add_comment']);
 
 Route::post('/add_reply',[HomeController::class,'add_reply']);
 
-Route::get('/search_produt',[Homecontroller::class,'search_product']);
+Route::get('/search_product',[Homecontroller::class,'search_product']);
 
+Route::get('/products',[Homecontroller::class,'product']);
+
+Route::get('/product_search',[Homecontroller::class,'product_search']);
